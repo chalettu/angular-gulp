@@ -1,25 +1,28 @@
 var gulp = require('gulp');
 var plugins = require("gulp-load-plugins")({lazy:false});
 var mainBowerFiles = require('main-bower-files');
-
-var target_dir="<%= output_directory %>";
+var server = require('gulp-server-livereload');
+//var config = require('./config.json');
+var config = require('./config.json');
+var target_dir=config.target_website_directory;
 
 gulp.task('scripts', function(){
-    //combine all js files of the app
+
     gulp.src(['!./app/**/*_test.js','./app/**/*.js'])
         .pipe(plugins.jshint())
         .pipe(plugins.jshint.reporter('default'))
         .pipe(plugins.concat('app.js'))
         .pipe(plugins.ngAnnotate())
-        .pipe(plugins.uglify())
+ //       .pipe(plugins.uglify())
         .pipe(gulp.dest(target_dir+'/js'));
-        
+
 });
 
 gulp.task('templates',function(){
     //combine all template files of the app into a js file
     gulp.src(['!./app/index.html',
         './app/**/*.html'])
+        .pipe(plugins.debug({verbose: false}))
         .pipe(plugins.angularTemplatecache('templates.js',{standalone:true}))
         .pipe(gulp.dest(target_dir+'/js'));
 });
@@ -51,8 +54,11 @@ var imagesFilter = plugins.filter(['**/*.png', '**/*.jpg', '**/*.gif', '**/*.jpe
 gulp.task('vendorJS', function(){
     //concatenate vendor JS files
     var jsFilter=plugins.filter(['*.js','!*.min.js']);
-        gulp.src(mainBowerFiles({"includeDev":true}))
+        gulp.src(mainBowerFiles({"includeDev":true,"debugging":true}))
         .pipe(jsFilter)
+        //  .pipe(plugins.debug({verbose: false}))
+          .pipe(plugins.order(config.vendor_js_include_order))
+          .pipe(plugins.debug({verbose: false}))
         .pipe(plugins.concat('lib.js'))
         .pipe(gulp.dest(target_dir+'/js'));
 
@@ -67,7 +73,7 @@ gulp.task('vendorCSS', function(){
 });
 
 gulp.task('copy-index', function() {
-    gulp.src('./app/index.html')    
+    gulp.src('./app/index.html')
         .pipe(gulp.dest(target_dir));
 });
 
@@ -95,12 +101,12 @@ gulp.task('minify',['vendorJS','copy-index'],function(){
 });
 gulp.task('watch',function(){
     gulp.watch([
-        'build/**/*.html',        
+        'build/**/*.html',
         'build/**/*.js',
-        'build/**/*.css'        
+        'build/**/*.css'
     ], function(event) {
         return gulp.src(event.path)
-            .pipe(plugins.connect.reload());
+       //     .pipe(plugins.connect.reload());
     });
     gulp.watch(['./app/**/*.js','!./app/**/*test.js'],['scripts']);
     gulp.watch(['!./app/index.html','./app/**/*.html'],['templates']);
@@ -108,11 +114,32 @@ gulp.task('watch',function(){
     gulp.watch('./app/index.html',['copy-index']);
 
 });
-
+/*
 gulp.task('connect', plugins.connect.server({
     root: ['build'],
     port: 9000,
     livereload: true
 }));
+*/
+gulp.task('connect',function(){
+
+
+    gulp.src([target_dir])
+        //source is a vinyl instance
+        .pipe(plugins.sym('compiled_www', {force: true}));
+
+
+
+    gulp.src("compiled_www/")
+        .pipe(server({
+            livereload: true,
+            directoryListing: true,
+            defaultFile:"/index.html#",
+            open: false,
+            log: "debug",
+            port: config.server_port
+        }));
+
+});
 
 gulp.task('default',['connect','scripts','templates','css','copy-index','vendorJS','vendorCSS','vendorFonts','vendorImages','watch']);
