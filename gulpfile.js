@@ -124,13 +124,7 @@ gulp.task('connect', plugins.connect.server({
 gulp.task('connect',function(){
 
 
-    gulp.src([target_dir])
-        //source is a vinyl instance
-        .pipe(plugins.sym('compiled_www', {force: true}));
-
-
-
-    gulp.src("compiled_www/")
+    gulp.src(target_dir)
         .pipe(server({
             livereload: true,
             directoryListing: true,
