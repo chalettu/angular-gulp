@@ -1,6 +1,6 @@
 {
   "environments":{},
   "target_website_directory":"../www",
-  "server_port":9002,
+  "server_port":9005,
   "vendor_js_include_order":["**/**/ionic.js","**/**/angular.js","**/**/angular-animate.js","**/**/angular-sanitize.js","**/**/angular-ui-router.js","**/**/ionic-angular.js","**/**/*.js"]
 }
