@@ -12,7 +12,7 @@ function getTask(task) {
     return require('./gulp-tasks/' + task)(gulp, plugins,config);
 }
 
-var tasks=['scripts','templates','connect','copy-index','css','vendorJS','vendorCSS','vendorFonts','vendorImages','watch'];
+var tasks=['scripts','templates','connect','copy-index','css','scss','vendorJS','vendorCSS','vendorFonts','vendorImages','watch'];
 tasks.forEach(function(task){
     gulp.task(task, getTask(task));
 });
@@ -47,5 +47,5 @@ gulp.task("load_tasks",function(){
 */
 
 /* default task */
-gulp.task('default', ['connect', 'scripts', 'templates', 'css', 'copy-index', 'vendorJS', 'vendorCSS', 'vendorFonts', 'vendorImages', 'watch']);
+gulp.task('default', ['connect', 'scripts', 'templates', 'css','scss', 'copy-index', 'vendorJS', 'vendorCSS', 'vendorFonts', 'vendorImages', 'watch']);
 gulp.task('build_app', ['setEnvironment', 'scripts', 'templates', 'css', 'copy-index', 'vendorJS', 'vendorCSS', 'vendorFonts', 'vendorImages']);
